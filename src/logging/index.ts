@@ -1,3 +1,7 @@
+import { randomUUID } from 'crypto';
+
+const SERVICE_INSTANCE_ID = process.env.SERVICE_INSTANCE_ID ?? randomUUID();
+
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 export interface LogMessage {
@@ -6,6 +10,7 @@ export interface LogMessage {
   context?: string;
   meta?: Record<string, any>;
   timestamp?: string;
+  instanceId: string;
 }
 
 /**
@@ -22,9 +27,7 @@ export interface LogTransport {
 class LoggerClass {
   private transports: LogTransport[] = [];
 
-  register(transport: LogTransport) {
-    this.transports.push(transport);
-  }
+  register(t: LogTransport) { this.transports.push(t); }
 
   private emit(level: LogLevel, message: string, context?: string, meta?: Record<string, any>) {
     const entry: LogMessage = {
@@ -33,16 +36,15 @@ class LoggerClass {
       context,
       meta,
       timestamp: new Date().toISOString(),
+      instanceId: SERVICE_INSTANCE_ID, 
     };
-    for (const t of this.transports) {
-      t.log(entry);
-    }
+    for (const t of this.transports) t.log(entry);
   }
 
-  debug(msg: string, ctx?: string, meta?: Record<string, any>) { this.emit('debug', msg, ctx, meta); }
-  info(msg: string, ctx?: string, meta?: Record<string, any>)  { this.emit('info', msg, ctx, meta); }
-  warn(msg: string, ctx?: string, meta?: Record<string, any>)  { this.emit('warn', msg, ctx, meta); }
-  error(msg: string, ctx?: string, meta?: Record<string, any>) { this.emit('error', msg, ctx, meta); }
+  info(m: string, c?: string, meta?: any)  { this.emit('info', m, c, meta); }
+  warn(m: string, c?: string, meta?: any)  { this.emit('warn', m, c, meta); }
+  error(m: string, c?: string, meta?: any) { this.emit('error', m, c, meta); }
+  debug(m: string, c?: string, meta?: any) { this.emit('debug', m, c, meta); }
 }
 
 export const Logger = new LoggerClass();
