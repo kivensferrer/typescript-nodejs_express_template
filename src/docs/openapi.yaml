@@ -1,0 +1,113 @@
+openapi: 3.0.3
+info:
+  title: Xennial API
+  version: 1.0.0
+  description: Centralized OpenAPI for all endpoints
+
+servers:
+  - url: http://localhost:{port}
+    variables:
+      port:
+        default: "3000"
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      operationId: getHealth
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  timestamp:
+                    type: string
+                    format: date-time
+                  uptime:
+                    type: number
+                    example: 12345.67
+  /api/hello:
+    get:
+      summary: Greet via query
+      operationId: getHello
+      parameters:
+        - in: query
+          name: name
+          required: false
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 50
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelloResponse'
+    post:
+      summary: Greet via body
+      operationId: postHello
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HelloRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelloResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+components:
+  schemas:
+    HelloRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+      additionalProperties: false
+    HelloResponse:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          example: Hello Kivens
+    ValidationIssue:
+      type: object
+      required: [path, message]
+      properties:
+        path: { type: string }
+        message: { type: string }
+    ValidationError:
+      type: object
+      required: [error, issues]
+      properties:
+        error:
+          type: string
+          example: ValidationError
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationIssue'
+        requestId:
+          type: string
+          nullable: true

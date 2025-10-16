@@ -1,6 +1,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import swaggerUi from 'swagger-ui-express';
 import helloRoutes from './routes/hello.routes';
+import { loadOpenApiDoc } from './docs/loader';
 import { errorHandler, notFound } from './middlewares/error.middleware';
 
 dotenv.config();
@@ -8,19 +10,37 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Parse JSON bodies for POST/PUT/PATCH
 app.use(express.json());
 
-// Mount our new pattern-based route
+/** Routes */
 app.use('/api/hello', helloRoutes);
 
-// Keep your simple root health check
-app.get('/', (_req, res) => res.send('OK'));
-
-// Optional: central 404 + error handling
-app.use(notFound);
-app.use(errorHandler);
-
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
 });
+
+/** Swagger UI */
+(async () => {
+  try {
+    const doc = await loadOpenApiDoc();
+
+    app.get('/openapi.json', (_req, res) => res.json(doc));
+    app.use('/docs', swaggerUi.serve, swaggerUi.setup(doc));
+    app.use(notFound);
+    app.use(errorHandler);
+
+    // start server
+    app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+      console.log(`Swagger UI        → http://localhost:${PORT}/docs`);
+      console.log(`OpenAPI (JSON)    → http://localhost:${PORT}/openapi.json`);
+    });
+  } catch (e) {
+    console.error('Failed to load OpenAPI doc:', e);
+    process.exit(1);
+  }
+})();
