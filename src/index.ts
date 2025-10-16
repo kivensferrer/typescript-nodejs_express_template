@@ -4,8 +4,11 @@ import swaggerUi from 'swagger-ui-express';
 import helloRoutes from './routes/hello.routes';
 import { loadOpenApiDoc } from './docs/loader';
 import { errorHandler, notFound } from './middlewares/error.middleware';
+import { Logger } from './logging';
+import { ConsoleTransport } from './logging/transports/console.transport';
 
 dotenv.config();
+Logger.register(new ConsoleTransport());
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -35,9 +38,9 @@ app.get('/health', (req, res) => {
 
     // start server
     app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
-      console.log(`Swagger UI        → http://localhost:${PORT}/docs`);
-      console.log(`OpenAPI (JSON)    → http://localhost:${PORT}/openapi.json`);
+      Logger.info(`Server running on http://localhost:${PORT}`);
+      Logger.info(`Swagger UI        → http://localhost:${PORT}/docs`);
+      Logger.info(`OpenAPI (JSON)    → http://localhost:${PORT}/openapi.json`);
     });
   } catch (e) {
     console.error('Failed to load OpenAPI doc:', e);
