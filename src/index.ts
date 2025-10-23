@@ -1,11 +1,11 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import swaggerUi from 'swagger-ui-express';
-import helloRoutes from './routes/hello.routes';
+import helloRoutes from './v1/hello/hello.routes';
 import { loadOpenApiDoc } from './docs/loader';
 import { errorHandler, notFound } from './middlewares/error.middleware';
-import { Logger } from './logging';
-import { ConsoleTransport } from './logging/transports/console.transport';
+import { Logger } from './utils/logging';
+import { ConsoleTransport } from './utils/logging/transports/console.transport';
 
 dotenv.config();
 Logger.register(new ConsoleTransport());

@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import * as HelloController from '../controllers/hello.controller';
-import { validate } from '../middlewares/validate.middleware';
-import { HelloQuerySchema, HelloBodySchema } from '../schemas/hello.schema';
+import * as HelloController from './hello.controllers';
+import { validate } from '../../middlewares/validate.middleware';
+import { HelloQuerySchema, HelloBodySchema } from '../../schemas/hello.schema';
 
 const router = Router();
 

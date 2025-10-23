@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { HelloService } from '../services/hello.service';
-import type { HelloQuery, HelloBody } from '../schemas/hello.schema';
-import { Logger } from '../logging';
+import { HelloService } from './hello.services';
+import type { HelloQuery, HelloBody } from '../../schemas/hello.schema';
+import { Logger } from '../../utils/logging';
 
 const service = new HelloService();
 
